@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.tomasthrawat.gptfilebridge"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.tomasthrawat.gptfilebridge"
