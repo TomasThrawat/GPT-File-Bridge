@@ -28,14 +28,6 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Verify Android SDK
-        shell: bash
-        run: |
-          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
-          echo "Android SDK: $SDK_ROOT"
-          test -d "$SDK_ROOT/platforms/android-37"
-          test -d "$SDK_ROOT/build-tools/36.0.0"
-
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
