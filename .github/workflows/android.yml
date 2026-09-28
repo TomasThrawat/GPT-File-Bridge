@@ -7,6 +7,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: gpt-file-bridge-\${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -34,12 +38,13 @@ jobs:
       - name: Install Android SDK packages
         shell: bash
         run: |
-          android sdk install platforms/android-36 build-tools/36.0.0
+          android sdk install platforms/android-37 build-tools/36.0.0
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: "9.6.0"
+          cache-provider: basic
 
       - name: Unit tests
         run: gradle testDebugUnitTest --warning-mode=all
