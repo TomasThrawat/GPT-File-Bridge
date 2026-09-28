@@ -8,6 +8,7 @@ import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,11 +17,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.weight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.lazy.LazyColumn
+import androidx.compose.foundation.layout.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -48,6 +49,7 @@ class MainActivity : ComponentActivity() {
         setContent { App() }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun App() {
         val selected = remember { mutableStateListOf<FileItem>() }
@@ -197,8 +199,12 @@ class MainActivity : ComponentActivity() {
                                                 result.publicUrl,
                                                 style = MaterialTheme.typography.bodySmall
                                             )
-                                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                Button(onClick = { shareText(result.prompt) }) {
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                Button(
+                                                    onClick = { shareText(result.prompt) }
+                                                ) {
                                                     Text("Share to ChatGPT")
                                                 }
                                                 OutlinedButton(
@@ -211,6 +217,13 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
+                        } else if (selected.isEmpty()) {
+                            Spacer(Modifier.weight(1f))
+                            Text(
+                                "No files selected",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Spacer(Modifier.weight(1f))
                         }
                     }
                 }
@@ -234,7 +247,9 @@ class MainActivity : ComponentActivity() {
                 val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                 val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
                 if (nameIndex >= 0) name = cursor.getString(nameIndex) ?: name
-                if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) size = cursor.getLong(sizeIndex)
+                if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) {
+                    size = cursor.getLong(sizeIndex)
+                }
             }
         }
 
@@ -254,8 +269,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun copyToClipboard(text: String) {
-        val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("GPT File Bridge", text))
+        val clipboard =
+            getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        clipboard.setPrimaryClip(
+            ClipData.newPlainText("GPT File Bridge", text)
+        )
         Toast.makeText(this, "Copied", Toast.LENGTH_SHORT).show()
     }
 
