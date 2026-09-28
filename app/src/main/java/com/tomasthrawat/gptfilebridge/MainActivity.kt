@@ -17,8 +17,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.lazy.LazyColumn
-import androidx.compose.foundation.layout.lazy.items
+import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -78,8 +79,8 @@ class MainActivity : ComponentActivity() {
         MaterialTheme {
             Scaffold(
                 topBar = { TopAppBar(title = { Text("GPT File Bridge") }) }
-            ) { padding ->
-                Surface(Modifier.fillMaxSize().padding(padding)) {
+            ) { paddingValues ->
+                Surface(Modifier.fillMaxSize().padding(paddingValues)) {
                     Column(
                         Modifier.fillMaxSize().padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -147,6 +148,7 @@ class MainActivity : ComponentActivity() {
                                     for (file in selected.toList()) {
                                         currentName = file.name
                                         progress = 0f
+
                                         runCatching {
                                             uploader.upload(file) { sent, total ->
                                                 progress = if (total > 0) {
@@ -179,7 +181,11 @@ class MainActivity : ComponentActivity() {
                         }
 
                         if (results.isNotEmpty()) {
-                            Text("Ready to share", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                "Ready to share",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
                             LazyColumn(
                                 Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -246,7 +252,10 @@ class MainActivity : ComponentActivity() {
             if (cursor.moveToFirst()) {
                 val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                 val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-                if (nameIndex >= 0) name = cursor.getString(nameIndex) ?: name
+
+                if (nameIndex >= 0) {
+                    name = cursor.getString(nameIndex) ?: name
+                }
                 if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) {
                     size = cursor.getLong(sizeIndex)
                 }
@@ -271,6 +280,7 @@ class MainActivity : ComponentActivity() {
     private fun copyToClipboard(text: String) {
         val clipboard =
             getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
+
         clipboard.setPrimaryClip(
             ClipData.newPlainText("GPT File Bridge", text)
         )
@@ -279,13 +289,16 @@ class MainActivity : ComponentActivity() {
 
     private fun formatBytes(bytes: Long): String {
         if (bytes <= 0) return "Unknown size"
+
         val units = arrayOf("B", "KB", "MB", "GB", "TB")
         var value = bytes.toDouble()
         var index = 0
+
         while (value >= 1024 && index < units.lastIndex) {
             value /= 1024
             index++
         }
+
         return "%.1f %s".format(value, units[index])
     }
 }
