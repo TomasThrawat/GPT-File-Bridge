@@ -28,17 +28,11 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Install Android CLI
+      - name: Verify Android SDK
         shell: bash
         run: |
-          curl -fsSL https://dl.google.com/android/cli/latest/linux_x86_64/install.sh | bash
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          "$HOME/.local/bin/android" --version
-
-      - name: Install Android SDK packages
-        shell: bash
-        run: |
-          android --sdk="$ANDROID_SDK_ROOT" sdk install platforms/android-37 build-tools/36.0.0
+          test -d "$ANDROID_SDK_ROOT/platforms/android-37"
+          test -d "$ANDROID_SDK_ROOT/build-tools/36.0.0"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
